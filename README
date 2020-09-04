@@ -1,0 +1,59 @@
+GD32F3x0 GCC Port by Bo Gao
+
+License:
+	(C) 2020, Bo Gao <7zlaser@gmail.com>
+	(C) 2017, 2019, GigaDevice Semiconductor Inc.
+	(C) 2009~2014, ARM LIMITED
+
+	Redistribution and use in source and binary forms, with or without modification, are
+	permitted provided that the following conditions are met:
+
+	1. Redistributions of source code must retain the above copyright notice, this list of
+	   conditions and the following disclaimer.
+	2. Redistributions in binary form must reproduce the above copyright notice, this list
+	   of conditions and the following disclaimer in the documentation
+	   and/or other materials provided with the distribution.
+	3. Neither the name of the copyright holder nor the names of its contributors may be
+	   used to endorse or promote products derived from this software without specific
+	   prior written permission.
+
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+	EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+	OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
+	SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+	EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+	SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+	HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+	OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THE
+	SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Prerequisites:
+	Compiler: arm-none-eabi-gcc
+	Environment: Linux, Unix, macOS and Windows with WSL/WSL2 or MSYS/MSYS2
+
+Usage:
+	Use "make app" or "make" to build user code (need to build driver.a first).
+	*: Make will automatically find and compile all c files in project root folder.
+	Use "make flash" to build user code and flash to device.
+	*: Depends on stm32loader to be insalled. The tool can be installed from pip3.
+	*: Modify PORT variable in makefile to change USB port.
+	Use "make monitor" to build user code, flash to device and open serial monitor.
+	Use "make driver" to build driver library (driver.a in lib directory).
+	Use "make clean" to clean up app build.
+	Use "make purge" to clean up app build and driver build.
+
+Notes:
+	1. RAM layout is data -> stack (fixed size) -> heap, heap is at top. Stack grows down
+	from _estack to _edata, heap grows up from _estack to _eheap. To change STACK_SIZE,
+	modify the linker script or specify STACK_SIZE in makefile.
+	2. FLASH and RAM sizes are defined in the linker script. The provided one applies to
+	GD32F350G8U6. To accommodate other sizes, modify LENGTH parameter in FLASH and RAM
+	sections according to datasheet. For GD32F3x0RB devices, data flash directives shall
+	be uncommented, and all constants intended for data flash shall be declared using the
+	'const __attribute__((section(".dflash"))) {type} {name}' syntax. For devices with
+	smaller RAM such as GD32F330x4, GD32F330x6 and GD32F350x4, STACK_SIZE may also need to
+	be reduced to make space for data, bss and heap sections.
+	3. Newlib system calls are implemented in syscall.c in lib/src. You can retarget them
+	in your own code as they are defined as weak functions. Default implementation calls
+	uart_getchar() and uart_putchar() to read and write from UART, which shall be provided
+	by the user. Function uart_getchar() shall return -1 on timeout if non-blocking.
